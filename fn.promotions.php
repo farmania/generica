@@ -414,37 +414,32 @@ function fn_promotion_apply_discount($promotion_id, $bonus, &$product, $use_base
     if (!isset($product['promotions'])) {
         $product['promotions'] = array();
     }
-
     if (!isset($product['discount'])) {
         $product['discount'] = 0;
     }
-
-    if (!isset($product['base_price'])) {
-        $product['base_price'] = $product['price'];
+    if (!isset($product['list_price'])) {
+        $product['list_price'] = db_get_field("SELECT list_price FROM ?:products WHERE product_id = ?i", $product['product_id']);
     }
-
-    $base_price = ($use_base == true) ? $product['base_price'] + (empty($product['modifiers_price']) ? 0 : $product['modifiers_price']) : $product['price'];
-
-    $discount = fn_promotions_calculate_discount($bonus['discount_bonus'], $base_price, $bonus['discount_value'], $product['price']);
+    if (!isset($product['base_price'])) {
+        $product['base_price'] = $product['list_price'];
+    }
+    $product['base_price'] = $product['original_price'] = $product['price'] = $product['list_price'];
+    $base_price = ($use_base == true) ? $product['list_price'] + (empty($product['modifiers_price']) ? 0 : $product['modifiers_price']) : $product['list_price'];
+    $discount = fn_promotions_calculate_discount($bonus['discount_bonus'], $base_price, $bonus['discount_value'], $product['list_price']);
     $discount = fn_format_price($discount);
-
     $product['discount'] += $discount;
-    $product['price'] -= $discount;
-
+    $product['price'] = $product['list_price'] - $discount;
     if ($product['price'] < 0) {
         $product['discount'] += $product['price'];
         $product['price'] = 0;
     }
-
     $product['promotions'][$promotion_id]['bonuses'][] = array (
-        'discount_bonus' =>	$bonus['discount_bonus'],
+        'discount_bonus' => $bonus['discount_bonus'],
         'discount_value' => $bonus['discount_value'],
         'discount' => $product['discount']
     );
-
     if (isset($product['subtotal'])) {
         $product['subtotal'] = $product['price'] * $product['amount'];
-
         if (is_array($cart) && is_array($cart_products)) {
             $cart['subtotal'] = 0;
             foreach ($cart_products as $cart_product_code => $cart_product) {
@@ -452,15 +447,14 @@ function fn_promotion_apply_discount($promotion_id, $bonus, &$product, $use_base
             }
         }
     }
-
     if (!empty($base_price)) {
         $product['discount_prc'] = sprintf('%d', round($product['discount'] * 100 / $base_price));
     } else {
         $product['discount_prc'] = 0;
     }
-
     return true;
 }
+
 
 /**
  * Apply promotion catalog rule
