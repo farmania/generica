@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<addon scheme="3.0">
+    <id>cp_gestpay_integration</id>
+    <version>1.1</version>
+    <priority>2100</priority>
+    <position>130</position>
+    <default_language>en</default_language>
+    <supplier>Cart Power</supplier>
+    <supplier_link>https://cart-power.com</supplier_link>
+    <status>disabled</status>
+    <authors>
+        <author>
+            <name>Cart-Power</name>
+            <email>sales@cart-power.com</email>
+            <url>http://cart-power.com</url>
+        </author>
+    </authors>
+    <settings edition_type="ROOT">
+        <sections>
+            <section id="general">
+                <items>
+                    <item id="shop_login">
+                        <type>input</type>
+                        <default_value></default_value>
+                    </item>
+                    <item id="mode">
+                        <type>selectbox</type>
+                        <variants>
+                            <item id="live"></item>
+                            <item id="test"></item>
+                        </variants>
+                        <default_value>test</default_value>
+                    </item>
+                    <item id="currency">
+                        <type>selectbox</type>
+                        <default_value></default_value>
+                    </item>
+                </items>
+            </section>
+        </sections>
+    </settings>
+    <queries>
+        <item for="install" version="1.1">ALTER TABLE ?:orders ADD cp_gestpay_from VARCHAR(1) NOT NULL DEFAULT 'C'</item>
+        <item for="uninstall">ALTER TABLE ?:orders DROP cp_gestpay_from</item>
+    </queries>
+    <functions>
+        <item for="install">fn_cp_gestpay_integration_install</item>
+        <item for="uninstall">fn_cp_gestpay_integration_uninstall</item>
+    </functions>
+</addon>
