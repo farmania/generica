@@ -10,7 +10,10 @@ function fn_cp_gestpay_integration_install(){
     fn_cp_gestpay_integration_uninstall();
     $_data = array(
         'processor' => 'GestPay Gateway',
-        'processor_script' => 'cp_gestpay_integration.php',
+        // cp.modif 11.12.19 start
+        // 'processor_script' => 'cp_gestpay_integration.php',
+        'processor_script' => 'cp_gestpay.php',
+        // cp.modif 11.12.19 end
         'processor_template' => 'views/orders/components/payments/cc_outside.tpl',// default
         'template' => 'views/orders/components/payments/cc_outside.tpl',
         'admin_template' => 'cp_gestpay_integration.tpl', // with config in admin side
