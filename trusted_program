@@ -1,11 +1,11 @@
- <script type="text/javascript" src="https://tracking.trovaprezzi.it/javascripts/tracking-vanilla.min.js"></script>
-
+  <script type="text/javascript" src="https://tracking.trovaprezzi.it/javascripts/tracking.min.js" async="true"></script>
   <script type="text/javascript">
-      window._tpt = window._tpt || [];
-      window._tpt.push({ event: "setAccount", id: /* chiavemerchant */ });
-      window._tpt.push({ event: "setOrderId", order_id: /* idordine */ });
-      window._tpt.push({ event: "setEmail", email: /* emailcliente */ });
-      window._tpt.push({ event: "addItem", sku: /* sku */, product_name: /* nomeprodotto */ });
-      window._tpt.push({ event: "setAmount", amount: /* totalecarrello */ });
-      window._tpt.push({ event: "orderSubmit"});
+    window._tt = window._tt || [];
+    window._tt.push({ event: "setAccount", id: 'bGNaM014SDZrYitJZ0d2M2FudGpiRzBzM1I0clRNSUFGUnVtTnR6Z3AxST01'});
+    window._tt.push({ event: "setOrderId", order_id: '{$order_info.order_id}'});
+    window._tt.push({ event: "setEmail", email: '{$order_info.email}'});
+    {foreach from=$order_info.products item="product"}
+        window._tt.push({ event: "addItem", sku: '{$product.product_code}', product_name: '{$product.product nofilter}'});
+    {/foreach}
+    window._tt.push({ event: "orderSubmit"});
   </script>
