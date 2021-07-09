@@ -29,6 +29,13 @@
             {
               "client_id": "573347455771-fo9uo10m6s8vuurca1agh1ngedmfddvc.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "573347455771-h3l1lrn4h9t2psvr0ek847mkiebqa3f4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.goodbarber.farmvillabella"
+              }
             }
           ]
         }
