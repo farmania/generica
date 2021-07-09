@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "573347455771",
+    "project_id": "farmacia-villabella",
+    "storage_bucket": "farmacia-villabella.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573347455771:android:cc202c1dff6f39b01ee9be",
+        "android_client_info": {
+          "package_name": "farmania.farmvillabella"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573347455771-fo9uo10m6s8vuurca1agh1ngedmfddvc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNe1PT1iu25sSoQ1otx8GCaM4cNpVReXY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "573347455771-fo9uo10m6s8vuurca1agh1ngedmfddvc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
