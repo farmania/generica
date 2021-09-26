@@ -107,6 +107,10 @@ function fn_get_call_requests($params = array(), $lang_code = CART_LANGUAGE)
         $condition[] = db_quote("o.status = ?s", $params['order_status']);
     }
 
+    if (!empty($params['order_email']) && fn_string_not_empty($params['order_email'])) {
+        $condition[] = db_quote('o.email = ?s', $params['order_email']);
+    }
+
     if (!empty($params['user_id'])) {
         $condition[] = db_quote("r.user_id = ?s", $params['user_id']);
     }
@@ -244,7 +248,6 @@ function fn_do_call_request($params, $product_data, &$cart, &$auth)
                 'url' => $url,
                 'customer' => $params['name'],
                 'phone_number' => $params['phone'],
-                'email' => $params['email'],
                 'time_from' => $params['time_from'] ?: CALL_REQUESTS_DEFAULT_TIME_FROM,
                 'time_to' => $params['time_to'] ?: CALL_REQUESTS_DEFAULT_TIME_TO,
             ),
@@ -256,7 +259,7 @@ function fn_do_call_request($params, $product_data, &$cart, &$auth)
     } elseif (empty($params['order_id'])) { // Buy with one click without order
         $mailer->send(array(
             'to' => 'company_orders_department',
-            'from' => 'default_company_orders_department',
+            'from' => $params['email'],
             'data' => array(
                 'url' => $url,
                 'customer' => $params['name'],
@@ -276,6 +279,17 @@ function fn_do_call_request($params, $product_data, &$cart, &$auth)
     } else {
         $result['notice'] = __('call_requests.request_recieved');
     }
+
+    /**
+     * Allows to perform some actions after call request is processed
+     *
+     * @param array $params       Parameters
+     * @param array $product_data Product data
+     * @param array $cart         Cart data
+     * @param array $auth         Authentication data
+     * @param array $result       Operation result
+     */
+    fn_set_hook('call_requests_do_call_request_post', $params, $product_data, $cart, $auth, $result);
 
     return $result;
 }
@@ -331,7 +345,7 @@ function fn_call_requests_placing_order($params, $product_data, &$cart, &$auth)
         }
     }
 
-    if (empty($product_data[$params['product_id']])) {
+    if (empty($product_data[$params['product_id']]['amount'])) {
         $product_data[$params['product_id']] = array(
             'product_id' => $params['product_id'],
             'amount' => 1,
@@ -446,12 +460,54 @@ function fn_call_requests_dispatch_before_display()
         return;
     }
 
-    $json = '[]';
-    $file = Registry::get('config.dir.root') . '/js/lib/inputmask-multi/phone-codes.json';
+    $countries_list = fn_get_simple_countries(true);
 
-    if (file_exists($file)) {
-        $json = file_get_contents($file);
+    $phone_masks = array();
+    $phone_masks_file_path = Registry::get('config.dir.root') . '/js/lib/inputmask-multi/phone-codes.json';
+
+    if (file_exists($phone_masks_file_path)) {
+        $phone_masks = json_decode(file_get_contents($phone_masks_file_path), true);
+        $phone_masks = array_filter($phone_masks, function ($mask_data) use ($countries_list) {
+            if (!is_array($mask_data['cc'])) {
+                return isset($countries_list[$mask_data['cc']]);
+            }
+
+            foreach ($mask_data['cc'] as $country_code) {
+                if (isset($countries_list[$country_code])) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
     }
 
-    Tygh::$app['view']->assign('call_requests_phone_mask_codes', $json);
+    $phone_masks_encoded = json_encode(array_values($phone_masks));
+
+    Tygh::$app['view']->assign('call_requests_phone_mask_codes', $phone_masks_encoded);
+}
+
+/**
+ * Hook handler for GPDR add-on: saves accepted agreement to the log
+ */
+function fn_gdpr_call_requests_do_call_request_post($params, $product_data, $cart, $auth, $result)
+{
+    if (AREA !== 'C') {
+        return false;
+    }
+
+    $email = isset($params['email']) ? $params['email'] : '';
+    $user_id = isset($auth['user_id']) ? (int) $auth['user_id'] : 0;
+
+    if (empty($email) && !empty($user_id)) {
+        $user_info = fn_get_user_info($auth['user_id']);
+        $email = isset($user_info['email']) ? $user_info['email'] : '';
+    }
+
+    $params = array(
+        'user_id' => $user_id,
+        'email' => $email,
+    );
+
+    return fn_gdpr_save_user_agreement($params, 'call_requests');
 }
